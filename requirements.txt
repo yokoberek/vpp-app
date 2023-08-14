@@ -25,3 +25,4 @@ tornado==6.3.3
 typing_extensions==4.7.1
 Werkzeug==2.3.6
 WTForms==3.0.1
+gunicorn
