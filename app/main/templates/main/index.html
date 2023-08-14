@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+
+<!--prettier-ignore-->
+{% block content %}
+
+<!-- prettier-ignore -->
+{% include 'main/snippets/plot1.html' %}
+{% include 'main/snippets/plot2.html' %}
+{% include 'main/snippets/plot3.html' %}
+{% include 'main/snippets/plot4.html' %}
+
+{% endblock content %}
+
+<!--prettier-ignore-->
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+  // Plot 1
+  let plotFirstOptions = {
+    xaxis: {
+      show: true,
+      categories: {{ plot_time| tojson | safe }},
+  labels: {
+    show: true,
+      style: {
+      fontFamily: "Inter, sans-serif",
+        cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+  },
+  axisBorder: {
+    show: false,
+      },
+  axisTicks: {
+    show: false,
+      },
+    },
+  yaxis: {
+    show: true,
+      labels: {
+      show: true,
+        style: {
+        fontFamily: "Inter, sans-serif",
+          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+      formatter: function (value) {
+        return "⚡ " + value;
+      },
+    },
+  },
+  series: [
+    {
+      name: "V-10",
+      data: {{ data_v10| tojson | safe }},
+    color: "#1A56DB",
+      },
+    {
+      name: "V-11",
+      data: {{ data_v11| tojson | safe }},
+    color: "#7E3BF2",
+      },
+  ],
+    chart: {
+    sparkline: {
+      enabled: false,
+      },
+    height: "100%",
+      width: "100%",
+        type: "area",
+          fontFamily: "Inter, sans-serif",
+            dropShadow: {
+      enabled: false,
+      },
+    toolbar: {
+      show: false,
+      },
+  },
+  tooltip: {
+    enabled: true,
+      x: {
+      show: false,
+      },
+  },
+  fill: {
+    type: "gradient",
+      gradient: {
+      opacityFrom: 0.55,
+        opacityTo: 0,
+          shade: "#1C64F2",
+            gradientToColors: ["#1C64F2"],
+      },
+  },
+  dataLabels: {
+    enabled: false,
+    },
+  stroke: {
+    width: 6,
+    },
+  legend: {
+    show: false,
+    },
+  grid: {
+    show: false,
+    },
+  };
+
+
+  // Plot 2
+  let plotSecondOptions = {
+    xaxis: {
+      show: true,
+      categories: {{ plot_time| tojson | safe }},
+  labels: {
+    show: true,
+      style: {
+      fontFamily: "Inter, sans-serif",
+        cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+  },
+  axisBorder: {
+    show: false,
+      },
+  axisTicks: {
+    show: false,
+      },
+    },
+  yaxis: {
+    show: true,
+      labels: {
+      show: true,
+        style: {
+        fontFamily: "Inter, sans-serif",
+          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+      formatter: function (value) {
+        return "⚡ " + value;
+      },
+    },
+  },
+  series: [
+    {
+      name: "V-12",
+      data: {{ data_v12| tojson | safe }},
+    color: "#1A56DB",
+      },
+  ],
+    chart: {
+    sparkline: {
+      enabled: false,
+      },
+    height: "100%",
+      width: "100%",
+        type: "area",
+          fontFamily: "Inter, sans-serif",
+            dropShadow: {
+      enabled: false,
+      },
+    toolbar: {
+      show: false,
+      },
+  },
+  tooltip: {
+    enabled: true,
+      x: {
+      show: false,
+      },
+  },
+  fill: {
+    type: "gradient",
+      gradient: {
+      opacityFrom: 0.55,
+        opacityTo: 0,
+          shade: "#1C64F2",
+            gradientToColors: ["#1C64F2"],
+      },
+  },
+  dataLabels: {
+    enabled: false,
+    },
+  stroke: {
+    width: 6,
+    },
+  legend: {
+    show: false,
+    },
+  grid: {
+    show: false,
+    },
+  };
+
+
+  // Plot 3
+  let plotThirdOptions = {
+    xaxis: {
+      show: true,
+      categories: {{ plot_time| tojson | safe }},
+  labels: {
+    show: true,
+      style: {
+      fontFamily: "Inter, sans-serif",
+        cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+  },
+  axisBorder: {
+    show: false,
+      },
+  axisTicks: {
+    show: false,
+      },
+    },
+  yaxis: {
+    show: true,
+      labels: {
+      show: true,
+        style: {
+        fontFamily: "Inter, sans-serif",
+          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+      formatter: function (value) {
+        return "⚡ " + value;
+      },
+    },
+  },
+  series: [
+    {
+      name: "V-13",
+      data: {{ data_v13| tojson | safe }},
+    color: "#1A56DB",
+      },
+  ],
+    chart: {
+    sparkline: {
+      enabled: false,
+      },
+    height: "100%",
+      width: "100%",
+        type: "area",
+          fontFamily: "Inter, sans-serif",
+            dropShadow: {
+      enabled: false,
+      },
+    toolbar: {
+      show: false,
+      },
+  },
+  tooltip: {
+    enabled: true,
+      x: {
+      show: false,
+      },
+  },
+  fill: {
+    type: "gradient",
+      gradient: {
+      opacityFrom: 0.55,
+        opacityTo: 0,
+          shade: "#1C64F2",
+            gradientToColors: ["#1C64F2"],
+      },
+  },
+  dataLabels: {
+    enabled: false,
+    },
+  stroke: {
+    width: 6,
+    },
+  legend: {
+    show: false,
+    },
+  grid: {
+    show: false,
+    },
+  };
+
+
+  // Plot 4
+  let plotFourOptions = {
+    xaxis: {
+      show: true,
+      categories: {{ bill_time| tojson | safe }},
+  labels: {
+    show: true,
+      style: {
+      fontFamily: "Inter, sans-serif",
+        cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+  },
+  axisBorder: {
+    show: false,
+      },
+  axisTicks: {
+    show: false,
+      },
+    },
+  yaxis: {
+    show: true,
+      labels: {
+      show: true,
+        style: {
+        fontFamily: "Inter, sans-serif",
+          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
+      formatter: function (value) {
+        return "⚡ " + value;
+      },
+    },
+  },
+  series: [
+    {
+      name: "VPP-1",
+      data: {{ bill_vpp1| tojson | safe }},
+    color: "#1A56DB",
+      },
+    {
+      name: "VPP-2",
+      data: {{ bill_vpp2| tojson | safe }},
+    color: "#7E3BF2",
+      },
+      {
+      name: "VPP-3",
+      data: {{ bill_vpp3| tojson | safe }},
+    color: "#FDBA8C",
+      },
+  ],
+    chart: {
+    sparkline: {
+      enabled: false,
+      },
+    height: "100%",
+      width: "100%",
+        type: "area",
+          fontFamily: "Inter, sans-serif",
+            dropShadow: {
+      enabled: false,
+      },
+    toolbar: {
+      show: false,
+      },
+  },
+  tooltip: {
+    enabled: true,
+      x: {
+      show: false,
+      },
+  },
+  fill: {
+    type: "gradient",
+      gradient: {
+      opacityFrom: 0.55,
+        opacityTo: 0,
+          shade: "#1C64F2",
+            gradientToColors: ["#1C64F2"],
+      },
+  },
+  dataLabels: {
+    enabled: false,
+    },
+  stroke: {
+    width: 6,
+    },
+  legend: {
+    show: false,
+    },
+  grid: {
+    show: false,
+    },
+  };
+
+
+  if (
+    document.getElementById("labels-chart-1") &&
+    typeof ApexCharts !== "undefined"
+  ) {
+    const chartPlot1 = new ApexCharts(
+      document.getElementById("labels-chart-1"),
+      plotFirstOptions
+    );
+    chartPlot1.render();
+  }
+
+  if (
+    document.getElementById("labels-chart-2") &&
+    typeof ApexCharts !== "undefined"
+  ) {
+    const chartPlot2 = new ApexCharts(
+      document.getElementById("labels-chart-2"),
+      plotSecondOptions
+    );
+    chartPlot2.render();
+  }
+
+  if (
+    document.getElementById("labels-chart-3") &&
+    typeof ApexCharts !== "undefined"
+  ) {
+    const chartPlot3 = new ApexCharts(
+      document.getElementById("labels-chart-3"),
+      plotThirdOptions
+    );
+    chartPlot3.render();
+  }
+
+  if (
+    document.getElementById("labels-chart-4") &&
+    typeof ApexCharts !== "undefined"
+  ) {
+    const chartPlot4 = new ApexCharts(
+      document.getElementById("labels-chart-4"),
+      plotFourOptions
+    );
+    chartPlot4.render();
+  }
+</script>
+{% endblock script %}

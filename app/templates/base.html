@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Dashboard - Virtual Power Plant</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://flowbite-admin-dashboard.vercel.app//app.css"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://keitlinghaus.de/wp-content/uploads/2020/05/Virtuelles_Kraftwerk_512_EN-1.png"
+    />
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-800">
+    {% include 'snippets/header.html' %}
+    <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <div
+        id="main-content"
+        class="relative w-full max-w-screen-2xl mx-auto h-full overflow-y-auto bg-gray-50 dark:bg-gray-900"
+      >
+        {% block content %}{% endblock content %}
+
+        <!--prettier-ignore-->
+        {% include 'snippets/footer.html' %}
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.js"></script>
+    {% block script %}{% endblock script %}
+  </body>
+</html>
