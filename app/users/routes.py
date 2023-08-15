@@ -1,6 +1,6 @@
 from flask import render_template, redirect, request, url_for, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
-from app import bcrypt, session
+from app import session
 from app.users.forms import LoginForm
 from app.users.models import Credential
 

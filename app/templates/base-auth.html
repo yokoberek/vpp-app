@@ -18,20 +18,20 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://flowbite-admin-dashboard.vercel.app//app.css"
-    />
+    {% assets 'css' %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}" />
+    {% endassets %}
+
     <link
       rel="icon"
       type="image/png"
-      href="https://keitlinghaus.de/wp-content/uploads/2020/05/Virtuelles_Kraftwerk_512_EN-1.png"
+      href="{{ url_for ('static', filename='assets/logo.png') }}"
     />
   </head>
-  <body class="bg-gray-50 dark:bg-gray-800">
+  <body class="font-inter bg-gray-50 dark:bg-gray-800">
+    <!-- prettier-ignore -->
     {% block content %}{% endblock content %}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.js"></script>
     {% block script %}{% endblock script %}
   </body>
 </html>

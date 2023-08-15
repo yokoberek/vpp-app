@@ -6,7 +6,7 @@
       <div class="flex justify-start items-center">
         <a href="/" class="flex mr-14">
           <img
-            src="https://keitlinghaus.de/wp-content/uploads/2020/05/Virtuelles_Kraftwerk_512_EN-1.png"
+            src="{{ url_for ('static', filename='assets/logo.png') }}"
             class="mr-3 h-8"
             alt="VPP Logo"
           />
@@ -24,7 +24,7 @@
           >
             <li>
               <a
-                href="#"
+                href="{{ url_for ('main.index') }}"
                 class="block rounded text-primary-700 dark:text-primary-500"
                 aria-current="page"
                 >Home</a
@@ -125,8 +125,8 @@
               <div class="flex-shrink-0">
                 <img
                   class="w-11 h-11 rounded-full"
-                  src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                  alt="Bonnie Green avatar"
+                  src="{{ url_for ('static', filename='assets/profile.jpg') }}"
+                  alt="Profile avatar"
                 />
                 <div
                   class="flex absolute justify-center items-center ml-6 -mt-5 w-5 h-5 rounded-full border border-white bg-primary-700 dark:border-gray-700"
@@ -241,7 +241,7 @@
           <span class="sr-only">Open user menu</span>
           <img
             class="w-8 h-8 rounded-full"
-            src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+            src="{{ url_for ('static', filename='assets/profile.jpg') }}"
             alt="user photo"
           />
         </button>

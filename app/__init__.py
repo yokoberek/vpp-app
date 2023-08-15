@@ -1,11 +1,11 @@
 from flask import Flask
-from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from flask_assets import Bundle, Environment
 from app.config import Config
 
-bcrypt = Bcrypt()
+assets = Environment()
 login_manager = LoginManager()
 login_manager.login_view = "users.login"
 
@@ -19,12 +19,17 @@ session = Session()
 # -- END DATABASE CONFIG
 
 
-def start_app():
+def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    bcrypt.init_app(app)
     login_manager.init_app(app)
+    assets.init_app(app)
+
+    with app.app_context():
+        css = Bundle("src/main.css", output="dist/main.css")
+        assets.register("css", css)
+        css.build()
 
     from app.main.routes import main
     from app.users.routes import users
