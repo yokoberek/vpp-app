@@ -21,7 +21,7 @@
 
     - Go to static folder
         ```sh
-        cd app/static/ && source ~/.bashrc
+        cd app/static/ 
         ```
     - Install package
         ```sh

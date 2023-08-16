@@ -4,16 +4,19 @@ function formatDate(date, options) {
 }
 
 // Calculate date values
+const timeZoneOffset = 7 * 60 * 60 * 1000; // Offset untuk GMT+7 dalam milidetik
 const currentDate = new Date();
 const options = {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
+    day: "numeric", month: "short", year: "numeric"
 };
-const yesterday = new Date(currentDate - 24 * 60 * 60 * 1000);
-const today = new Date(currentDate);
-const oneWeekAgo = new Date(currentDate - 7 * 24 * 60 * 60 * 1000);
-const oneMonthAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
+const twentyFourHoursAgo = new Date(currentDate - 24 * 60 * 60 * 1000); // Waktu 24 jam lalu
+const today = formatDate(currentDate, options);
+const sixHoursAgo = new Date(currentDate - 6 * 60 * 60 * 1000); // Waktu 6 jam lalu
+const twelveHoursAgo = new Date(currentDate - 12 * 60 * 60 * 1000); // Waktu 12 jam lalu
+const oneDayAgo = new Date(currentDate - 24 * 60 * 60 * 1000); // Waktu 1 hari lalu
+const threeDaysAgo = new Date(currentDate - 3 * 24 * 60 * 60 * 1000); // Waktu 3 hari lalu
+const sixDaysAgo = new Date(currentDate - 6 * 24 * 60 * 60 * 1000); // Waktu 6 hari lalu
+
 
 // Fetch API data and create charts
 function fetchAndCreateCharts() {
@@ -24,11 +27,8 @@ function fetchAndCreateCharts() {
     };
 
     fetch("/api/equipment", {
-        method: "GET",
-        headers: headers
-    })
-    .then(response => response.json())
-    .then(data => {
+        method: "GET", headers: headers
+    }).then(response => response.json()).then(data => {
         const data_v10 = data['data_v10'];
         const data_v11 = data['data_v11'];
         const data_v12 = data['data_v12'];
@@ -40,11 +40,8 @@ function fetchAndCreateCharts() {
     });
 
     fetch("/api/bill", {
-        method: "GET",
-        headers: headers
-    })
-    .then(response => response.json())
-    .then(data => {
+        method: "GET", headers: headers
+    }).then(response => response.json()).then(data => {
         const bill_vpp1 = data['bill_vpp1'];
         const bill_vpp2 = data['bill_vpp2'];
         const bill_vpp3 = data['bill_vpp3'];
@@ -58,106 +55,60 @@ function createChartV10andV11(data_v10, data_v11) {
     var options = {
         xaxis: {
             type: "datetime",
-            min: new Date(today).getTime(),
+            min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset,
             datetimeUTC: false,
             labels: {
-                show: true,
-                offsetY: -5,
-                offsetX: 15,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs"
+                show: true, offsetY: -5, offsetX: 15, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs"
                 }
-            },
-            axisBorder: {
+            }, axisBorder: {
                 show: false
-            },
-            axisTicks: {
+            }, axisTicks: {
                 show: false
-            },
-            title: {
-                text: "Waktu",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal"
+            }, title: {
+                text: "Waktu", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal"
                 }
             }
-        },
-        yaxis: {
-            show: true,
-            labels: {
-                show: true,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
-                },
-                formatter: function (value) {
+        }, yaxis: {
+            show: true, labels: {
+                show: true, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+                }, formatter: function (value) {
                     return "⚡ " + value;
                 }
-            },
-            title: {
-                text: "Watt",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+            }, title: {
+                text: "Watt", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
                 }
             }
-        },
-        series: [
-            {
-                name: "PV - Sunny Tripower",
-                data: data_v10,
-                color: "#008FFB",
-            },
-            {
-                name: "Battery - Sunny Island",
-                data: data_v11,
-                color: "#00E396",
-            }
-        ],
-        chart: {
+        }, series: [{
+            name: "PV - Sunny Tripower", data: data_v10, color: "#008FFB"
+        }, {
+            name: "Battery - Sunny Island", data: data_v11, color: "#00E396"
+        }], chart: {
             sparkline: {
                 enabled: false
-            },
-            height: "100%",
-            width: "100%",
-            type: "area",
-            fontFamily: "Inter, sans-serif",
-            dropShadow: {
+            }, height: "100%", width: "100%", type: "area", fontFamily: "Inter, sans-serif", dropShadow: {
                 enabled: false
-            },
-            toolbar: {
+            }, toolbar: {
                 show: false
             }
-        },
-        tooltip: {
-            enabled: true,
-            x: {
-                show: false
+        }, tooltip: {
+            enabled: true, x: {
+                show: true, format: "dd MMM yyyy - HH:mm"
             }
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                opacityFrom: 0.55,
-                opacityTo: 0,
-                shade: "#1C64F2",
-                gradientToColors: ["#1C64F2"]
+        }, fill: {
+            type: "gradient", gradient: {
+                opacityFrom: 0.55, opacityTo: 0, shade: "#1C64F2", gradientToColors: ["#1C64F2"]
             }
-        },
-        dataLabels: {
+        }, dataLabels: {
             enabled: false
-        },
-        stroke: {
+        }, stroke: {
             width: 6
-        },
-        legend: {
-            show: true,
-            position: "top",
-            horizontalAlign: "right",            
-            showForSingleSeries: true,
-        },
-        grid: {
+        }, legend: {
+            show: true, position: "top", horizontalAlign: "right", showForSingleSeries: true
+        }, grid: {
             show: false
         }
     };
@@ -174,22 +125,34 @@ function createChartV10andV11(data_v10, data_v11) {
         activeEl.target.classList.add("active");
     };
 
-    document.querySelector("#p1_today").addEventListener("click", function (e) {
+    document.querySelector("#p1_six_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(today).getTime());
+        chart.zoomX(new Date(sixHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p1_one_week").addEventListener("click", function (e) {
+    document.querySelector("#p1_twelve_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneWeekAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(twelveHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p1_one_month").addEventListener("click", function (e) {
+    document.querySelector("#p1_one_day").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneMonthAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(oneDayAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p1_three_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(threeDaysAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p1_six_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(sixDaysAgo).getTime() + timeZoneOffset);
     });
 }
 
@@ -198,101 +161,58 @@ function createChartV12(data_v12) {
     var options = {
         xaxis: {
             type: "datetime",
-            min: new Date(today).getTime(),
+            min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset,
             datetimeUTC: false,
             labels: {
-                show: true,
-                offsetY: -5,
-                offsetX: 15,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs"
+                show: true, offsetY: -5, offsetX: 15, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs"
                 }
-            },
-            axisBorder: {
+            }, axisBorder: {
                 show: false
-            },
-            axisTicks: {
+            }, axisTicks: {
                 show: false
-            },
-            title: {
-                text: "Waktu",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal"
+            }, title: {
+                text: "Waktu", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal"
                 }
             }
-        },
-        yaxis: {
-            show: true,
-            labels: {
-                show: true,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
-                },
-                formatter: function (value) {
+        }, yaxis: {
+            show: true, labels: {
+                show: true, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+                }, formatter: function (value) {
                     return "⚡ " + value;
                 }
-            },
-            title: {
-                text: "Watt",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+            }, title: {
+                text: "Watt", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
                 }
             }
-        },
-        series: [
-            {
-                name: "Battery - Sunny Island",
-                data: data_v12,
-                color: "#00E396",
-            }
-        ],
-        chart: {
+        }, series: [{
+            name: "Battery - Sunny Island", data: data_v12, color: "#00E396"
+        }], chart: {
             sparkline: {
                 enabled: false
-            },
-            height: "100%",
-            width: "100%",
-            type: "area",
-            fontFamily: "Inter, sans-serif",
-            dropShadow: {
+            }, height: "100%", width: "100%", type: "area", fontFamily: "Inter, sans-serif", dropShadow: {
                 enabled: false
-            },
-            toolbar: {
+            }, toolbar: {
                 show: false
             }
-        },
-        tooltip: {
-            enabled: true,
-            x: {
-                show: false
+        }, tooltip: {
+            enabled: true, x: {
+                show: true, format: "dd MMM yyyy - HH:mm"
             }
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                opacityFrom: 0.55,
-                opacityTo: 0,
-                shade: "#1C64F2",
-                gradientToColors: ["#1C64F2"]
+        }, fill: {
+            type: "gradient", gradient: {
+                opacityFrom: 0.55, opacityTo: 0, shade: "#1C64F2", gradientToColors: ["#1C64F2"]
             }
-        },
-        dataLabels: {
+        }, dataLabels: {
             enabled: false
-        },
-        stroke: {
+        }, stroke: {
             width: 6
-        },
-        legend: {
-            show: true,
-            position: "top",
-            horizontalAlign: "right",
-            showForSingleSeries: true,
-        },
-        grid: {
+        }, legend: {
+            show: true, position: "top", horizontalAlign: "right", showForSingleSeries: true
+        }, grid: {
             show: false
         }
     };
@@ -309,22 +229,34 @@ function createChartV12(data_v12) {
         activeEl.target.classList.add("active");
     };
 
-    document.querySelector("#p2_today").addEventListener("click", function (e) {
+    document.querySelector("#p2_six_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(today).getTime());
+        chart.zoomX(new Date(sixHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p2_one_week").addEventListener("click", function (e) {
+    document.querySelector("#p2_twelve_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneWeekAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(twelveHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p2_one_month").addEventListener("click", function (e) {
+    document.querySelector("#p2_one_day").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneMonthAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(oneDayAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p2_three_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(threeDaysAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p2_six_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(sixDaysAgo).getTime() + timeZoneOffset);
     });
 }
 
@@ -333,102 +265,59 @@ function createChartV13(data_v13) {
     var options = {
         xaxis: {
             type: "datetime",
-            min: new Date(today).getTime(),
+            min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset,
             datetimeUTC: false,
             labels: {
-                show: true,
-                offsetY: -5,
-                offsetX: 15,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs"
+                show: true, offsetY: -5, offsetX: 15, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs"
                 }
-            },
-            axisBorder: {
+            }, axisBorder: {
                 show: false
-            },
-            axisTicks: {
+            }, axisTicks: {
                 show: false
-            },
-            title: {
-                text: "Waktu",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal"
+            }, title: {
+                text: "Waktu", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal"
                 }
             }
-        },
-        yaxis: {
-            show: true,
-            labels: {
-                show: true,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
-                },
-                formatter: function (value) {
+        }, yaxis: {
+            show: true, labels: {
+                show: true, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+                }, formatter: function (value) {
                     return "⚡ " + value;
                 }
-            },
-            title: {
-                text: "Watt",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+            }, title: {
+                text: "Watt", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
                 }
             }
-        },
-        series: [
-            {
-                name: "PV - Sunny Boy",
-                data: data_v13,
-                color: "#008FFB",
-            }
-        ],
-        chart: {
+        }, series: [{
+            name: "PV - Sunny Boy", data: data_v13, color: "#008FFB"
+        }], chart: {
             sparkline: {
                 enabled: false
-            },
-            height: "100%",
-            width: "100%",
-            type: "area",
-            fontFamily: "Inter, sans-serif",
-            dropShadow: {
+            }, height: "100%", width: "100%", type: "area", fontFamily: "Inter, sans-serif", dropShadow: {
                 enabled: false
-            },
-            toolbar: {
+            }, toolbar: {
                 show: false
             }
-        },
-        tooltip: {
-            enabled: true,
-            x: {
-                show: false
+        }, tooltip: {
+            enabled: true, x: {
+                show: true, format: "dd MMM yyyy - HH:mm"
             }
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                opacityFrom: 0.55,
-                opacityTo: 0,
-                shade: "#1C64F2",
-                gradientToColors: ["#1C64F2"]
+        }, fill: {
+            type: "gradient", gradient: {
+                opacityFrom: 0.55, opacityTo: 0, shade: "#1C64F2", gradientToColors: ["#1C64F2"]
             }
-        },
-        dataLabels: {
+        }, dataLabels: {
             enabled: false
-        },
-        stroke: {
+        }, stroke: {
             width: 6
-        },
-        legend: {
-            show: true,
-            position: "top",
-            horizontalAlign: "right",
-            showForSingleSeries: true,
-            
-        },
-        grid: {
+        }, legend: {
+            show: true, position: "top", horizontalAlign: "right", showForSingleSeries: true
+
+        }, grid: {
             show: false
         }
     };
@@ -445,22 +334,34 @@ function createChartV13(data_v13) {
         activeEl.target.classList.add("active");
     };
 
-    document.querySelector("#p3_today").addEventListener("click", function (e) {
+    document.querySelector("#p3_six_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(today).getTime());
+        chart.zoomX(new Date(sixHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p3_one_week").addEventListener("click", function (e) {
+    document.querySelector("#p3_twelve_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneWeekAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(twelveHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p3_one_month").addEventListener("click", function (e) {
+    document.querySelector("#p3_one_day").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneMonthAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(oneDayAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p3_three_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(threeDaysAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p3_six_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(sixDaysAgo).getTime() + timeZoneOffset);
     });
 }
 
@@ -469,111 +370,62 @@ function createChartBill(bill_vpp1, bill_vpp2, bill_vpp3) {
     var options = {
         xaxis: {
             type: "datetime",
-            min: new Date(today).getTime(),
+            min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset,
             datetimeUTC: false,
             labels: {
-                show: true,
-                offsetY: -5,
-                offsetX: 15,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs"
+                show: true, offsetY: -5, offsetX: 15, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs"
                 }
-            },
-            axisBorder: {
+            }, axisBorder: {
                 show: false
-            },
-            axisTicks: {
+            }, axisTicks: {
                 show: false
-            },
-            title: {
-                text: "Waktu",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal"
+            }, title: {
+                text: "Waktu", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal"
                 }
             }
-        },
-        yaxis: {
-            show: true,
-            labels: {
-                show: true,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
-                },
-                formatter: function (value) {
+        }, yaxis: {
+            show: true, labels: {
+                show: true, style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+                }, formatter: function (value) {
                     return "Rp " + value;
                 }
-            },
-            title: {
-                text: "Watt",
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                    cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+            }, title: {
+                text: "Watt", style: {
+                    fontFamily: "Inter, sans-serif", cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
                 }
             }
-        },
-        series: [
-            {
-                name: "BILL - VPP 1",
-                data: bill_vpp1,
-                color: "#008FFB",
-            },
-            {
-                name: "BILL - VPP 2",
-                data: bill_vpp2,
-                color: "#FF7F00",
-            },
-            {
-                name: "BILL - VPP 3",
-                data: bill_vpp3,
-                color: "#00E396",
-            }
-        ],
-        chart: {
+        }, series: [{
+            name: "BILL - VPP 1", data: bill_vpp1, color: "#008FFB"
+        }, {
+            name: "BILL - VPP 2", data: bill_vpp2, color: "#FF7F00"
+        }, {
+            name: "BILL - VPP 3", data: bill_vpp3, color: "#00E396"
+        }], chart: {
             sparkline: {
                 enabled: false
-            },
-            height: "100%",
-            width: "100%",
-            type: "area",
-            fontFamily: "Inter, sans-serif",
-            dropShadow: {
+            }, height: "100%", width: "100%", type: "area", fontFamily: "Inter, sans-serif", dropShadow: {
                 enabled: false
-            },
-            toolbar: {
+            }, toolbar: {
                 show: false
             }
-        },
-        tooltip: {
-            enabled: true,
-            x: {
-                show: false
+        }, tooltip: {
+            enabled: true, x: {
+                show: true, format: "dd MMM yyyy - HH:mm"
             }
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                opacityFrom: 0.55,
-                opacityTo: 0,
-                shade: "#1C64F2",
-                gradientToColors: ["#1C64F2"]
+        }, fill: {
+            type: "gradient", gradient: {
+                opacityFrom: 0.55, opacityTo: 0, shade: "#1C64F2", gradientToColors: ["#1C64F2"]
             }
-        },
-        dataLabels: {
+        }, dataLabels: {
             enabled: false
-        },
-        stroke: {
+        }, stroke: {
             width: 6
-        },
-        legend: {
-            show: true,
-            position: "top",
-            horizontalAlign: "right",            
-            showForSingleSeries: true,
-        },
-        grid: {
+        }, legend: {
+            show: true, position: "top", horizontalAlign: "right", showForSingleSeries: true
+        }, grid: {
             show: false
         }
     };
@@ -590,22 +442,34 @@ function createChartBill(bill_vpp1, bill_vpp2, bill_vpp3) {
         activeEl.target.classList.add("active");
     };
 
-    document.querySelector("#p4_today").addEventListener("click", function (e) {
+    document.querySelector("#p4_six_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(today).getTime());
+        chart.zoomX(new Date(sixHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p4_one_week").addEventListener("click", function (e) {
+    document.querySelector("#p4_twelve_hours").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneWeekAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(twelveHoursAgo).getTime() + timeZoneOffset);
     });
 
-    document.querySelector("#p4_one_month").addEventListener("click", function (e) {
+    document.querySelector("#p4_one_day").addEventListener("click", function (e) {
         resetCssClasses(e);
 
-        chart.zoomX(new Date(oneMonthAgo).getTime(), new Date(today).getTime());
+        chart.zoomX(new Date(oneDayAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p4_three_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(threeDaysAgo).getTime() + timeZoneOffset);
+    });
+
+    document.querySelector("#p4_six_day").addEventListener("click", function (e) {
+        resetCssClasses(e);
+
+        chart.zoomX(new Date(sixDaysAgo).getTime() + timeZoneOffset);
     });
 }
 

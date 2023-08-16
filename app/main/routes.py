@@ -3,7 +3,6 @@ from flask import render_template, Blueprint, jsonify
 from flask_login import login_required
 from flask_restful import Resource, Api
 
-
 main = Blueprint("main", __name__, template_folder="templates")
 api = Api(main)
 
@@ -19,8 +18,8 @@ class EquipmentResource(Resource):
     def get(self):
         # Plot 1, 2, 3
         obj_data_all = session.execute(
-            "SELECT date, v10, v11, v12, v13 FROM emsdata WHERE date(date) = date(now()) ORDER BY date DESC LIMIT 200"
-        ).fetchall()
+            "SELECT date, v10, v11, v12, v13 FROM emsdata ORDER BY date DESC"
+        ).fetchmany(50000)
 
         data_v10 = [[item[0], item[1]] for item in obj_data_all]
         data_v11 = [[item[0], item[2]] for item in obj_data_all]
@@ -41,8 +40,8 @@ class BillResource(Resource):
     def get(self):
         # Plot 4
         obj_data = session.execute(
-            "SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE date(daytime) = date(now()) ORDER BY daytime DESC LIMIT 200"
-        ).fetchall()
+            "SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill ORDER BY daytime DESC"
+        ).fetchmany(50000)
 
         bill_vpp1 = [[item[0], item[1]] for item in obj_data]
         bill_vpp2 = [[item[0], item[2]] for item in obj_data]
