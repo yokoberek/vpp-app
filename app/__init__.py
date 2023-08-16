@@ -11,7 +11,7 @@ login_manager.login_view = "users.login"
 
 # -- DATABASE CONFIG
 DATABASE_URL = "mysql+mysqldb://theis:RahasiaBanget@10.183.20.101/ems"
-engine = create_engine(DATABASE_URL, echo=True)  # Set 'echo' to True for debugging
+engine = create_engine(DATABASE_URL)  # Set 'echo' to True for debugging
 
 # Create a session factory
 Session = sessionmaker(bind=engine)
@@ -23,11 +23,11 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    login_manager.init_app(app)
     assets.init_app(app)
+    login_manager.init_app(app)
 
     with app.app_context():
-        css = Bundle("src/main.css", output="dist/main.css")
+        css = Bundle("css/src/main.css", output="css/dist/main.css")
         assets.register("css", css)
         css.build()
 

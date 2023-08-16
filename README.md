@@ -21,7 +21,7 @@
 
     - Go to static folder
         ```sh
-        cd app/static/
+        cd app/static/ && source ~/.bashrc
         ```
     - Install package
         ```sh
@@ -33,7 +33,7 @@
         ```
     - Generate CSS File
         ```
-        tailwindcss -i ./static/src/main.css -o ./static/dist/main.css --minify
+        tailwindcss -i ./css/src/main.css -o ./css/dist/main.css --minify
         ```    
     
 4. Restart nginx & Supervisor
