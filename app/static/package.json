@@ -4,6 +4,7 @@
 	},
 	"dependencies": {
 		"apexcharts": "^3.41.1",
+		"chart.js": "^4.3.3",
 		"echarts": "^5.4.3"
 	}
 }
