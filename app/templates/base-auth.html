@@ -1,37 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Get started with a free and open-source admin dashboard layout built with Tailwind CSS and Flowbite featuring charts, widgets, CRUD layouts, authentication pages, and more"
-    />
-    <meta name="author" content="Themesberg" />
-    <meta name="generator" content="Hugo 0.58.2" />
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-    <title>Login - Virtual Power Plant</title>
+        <title>Login - Virtual Power Plant</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    {% assets 'css' %}
-    <link rel="stylesheet" href="{{ ASSET_URL }}" />
-    {% endassets %}
+        {% assets 'css' %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+        {% endassets %}
 
-    <link
-      rel="icon"
-      type="image/png"
-      href="{{ url_for ('static', filename='assets/logo.png') }}"
-    />
-  </head>
-  <body class="font-inter bg-gray-50 dark:bg-gray-800">
-    <!-- prettier-ignore -->
-    {% block content %}{% endblock content %}
+        <link rel="icon" type="image/png" href="{{ url_for ('static', filename='assets/logo.png') }}"/>
+    </head>
+    <body
+        class="font-inter bg-gray-50 dark:bg-gray-800">
+        <!-- prettier-ignore -->
+        {% block content %}{% endblock content %}
 
-    {% block script %}{% endblock script %}
-  </body>
+        <script src="{{ url_for ('static', filename='node_modules/flowbite/dist/flowbite.min.js') }}"></script>
+        {% block script %}{% endblock script %}
+    </body>
 </html>

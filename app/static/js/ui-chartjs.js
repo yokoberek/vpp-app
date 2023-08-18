@@ -1,33 +1,89 @@
-// Plot 1 Configuration
-document.addEventListener('DOMContentLoaded', function () {
+const options = {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+};
+
+// Calculate date values
+const timeZoneOffset = 7 * 60 * 60 * 1000; // Offset untuk GMT+7 dalam milidetik
+const currentTime = new Date(); // Waktu saat ini
+const sixHoursAgo = new Date(currentTime - 6 * 60 * 60 * 1000); // Waktu 6 jam lalu
+const twelveHoursAgo = new Date(currentTime - 12 * 60 * 60 * 1000); // Waktu 12 jam lalu
+const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // Waktu 24 jam lalu
+const threeDaysAgo = new Date(currentTime - 3 * 24 * 60 * 60 * 1000); // Waktu 3 hari lalu
+const sixDaysAgo = new Date(currentTime - 6 * 24 * 60 * 60 * 1000); // Waktu 6 hari lalu
+
+
+// Fetch API data and create charts
+function fetchAndCreateCharts() {
+    const headers = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    fetch("/api/equipment", {
+        method: "GET",
+        headers: headers
+    }).then(response => response.json()).then(data => {
+        const time = data.time;
+        const data_v10 = data.value_v10;
+        const data_v11 = data.value_v11;
+        const data_v12 = data.value_v12;
+        const data_v13 = data.value_v13;
+
+        createChartV10andV11(time, data_v10, data_v11);
+        createChartV12(time, data_v12)
+        createChartV13(time, data_v13)
+    });
+
+    fetch("/api/billing", {
+        method: "GET",
+        headers: headers
+    }).then(response => response.json()).then(data => {
+        const time = data.time;
+        const bill_vpp1 = data.bill_vpp1;
+        const bill_vpp2 = data.bill_vpp2;
+        const bill_vpp3 = data.bill_vpp3;
+
+        createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
+    });
+}
+
+function createChartV10andV11(time, data_v10, data_v11) {
     const config = {
         type: 'line',
         data: {
             labels: [],
-            datasets: [{
-                label: "PV - Sunny Tripower",
-                data: [],
-                backgroundColor: "rgba(50, 69, 209,.6)",
-                borderColor: "rgba(63,82,227,1)",
-                fill: false,
-            },
+            datasets: [
                 {
+                    label: "PV - Sunny Tripower",
+                    data: data_v10,
+                    backgroundColor: "rgba(50, 69, 209,.6)",
+                    borderColor: "rgba(63,82,227,1)",
+                    fill: false
+                }, {
                     label: "Battery - Sunny Island",
-                    data: [],
+                    data: data_v11,
                     backgroundColor: "rgba(253, 183, 90,.6)",
                     borderColor: "rgba(253, 183, 90,.6)",
-                    fill: false,
-                }],
+                    fill: false
+                }
+            ]
         },
         options: {
             maintainAspectRatio: false,
             tooltips: {
                 mode: 'index',
-                intersect: false,
+                intersect: false
             },
-            hover: {
-                mode: 'nearest',
-                intersect: true
+            interaction: {
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    align: 'center'
+                }
             },
             scales: {
                 y: {
@@ -37,65 +93,90 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 },
                 x: {
-                    stacked: true,
+                    type: 'time',
+                    ticks: {
+                        major: {
+                            enabled: true
+                        },
+                        font: (context) => {
+                            const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
+                            return {weight: boldedTicks}
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Waktu'
-                    }
+                    },
+                    min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset
                 }
             }
         }
     };
 
-    const context = document.getElementById('chart-1').getContext('2d');
+    const chart = new Chart(document.getElementById('chart-1').getContext('2d'), config);
 
-    const lineChart = new Chart(context, config);
 
-    const source = new EventSource("/data-streaming/vpp1");
+    for (const dateTimeString of time) {
+        config.data.labels.push(new Date(dateTimeString).getTime() - timeZoneOffset)
+    }
 
-    source.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+    // Update the chart
+    chart.update();
 
-        if (config.data.labels.length === 10) {
-            config.data.labels.shift();
-            config.data.datasets[0].data.shift();
-            config.data.datasets[1].data.shift();
-        }
+    document.querySelector("#p1_six_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixHoursAgo
+        chart.update()
+    });
 
-        // Add the new data point at the end of the arrays
-        config.data.labels.push(data.time);
-        config.data.datasets[0].data.push(data.value_v10);
-        config.data.datasets[1].data.push(data.value_v11);
+    document.querySelector("#p1_twelve_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = twelveHoursAgo
+        chart.update()
+    });
 
-        // Update the chart
-        lineChart.update();
+    document.querySelector("#p1_one_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = twentyFourHoursAgo
+        chart.update()
+    });
 
-    };
-});
+    document.querySelector("#p1_three_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = threeDaysAgo
+        chart.update()
+    });
 
-// Plot 2 Configurtion
-document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector("#p1_six_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixDaysAgo
+        chart.update()
+    });
+
+};
+
+function createChartV12(time, data_v12) {
     const config = {
         type: 'line',
         data: {
             labels: [],
             datasets: [{
-                label: "Battery - Sunny Island",
-                data: [],
-                backgroundColor: 'rgb(65, 145, 250)',
-                borderColor: 'rgb(65, 145, 250)',
-                fill: false,
-            }],
+                    label: "Battery - Sunny Island",
+                    data: data_v12,
+                    backgroundColor: "rgba(253, 183, 90,.6)",
+                    borderColor: "rgba(253, 183, 90,.6)",
+                    fill: false
+                }
+            ]
         },
         options: {
             maintainAspectRatio: false,
             tooltips: {
                 mode: 'index',
-                intersect: false,
+                intersect: false
             },
-            hover: {
-                mode: 'nearest',
-                intersect: true
+            interaction: {
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    align: 'center'
+                }
             },
             scales: {
                 y: {
@@ -105,62 +186,90 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 },
                 x: {
-                    stacked: true,
+                    type: 'time',
+                    ticks: {
+                        major: {
+                            enabled: true
+                        },
+                        font: (context) => {
+                            const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
+                            return {weight: boldedTicks}
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Waktu'
-                    }
+                    },
+                    min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset
                 }
             }
         }
     };
 
-    const context = document.getElementById('chart-2').getContext('2d');
+    const chart = new Chart(document.getElementById('chart-2').getContext('2d'), config);
 
-    const lineChart = new Chart(context, config);
 
-    const source = new EventSource("/data-streaming/vpp2");
+    for (const dateTimeString of time) {
+        config.data.labels.push(new Date(dateTimeString).getTime() - timeZoneOffset)
+    }
 
-    source.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+    // Update the chart
+    chart.update();
 
-        if (config.data.labels.length === 10) {
-            config.data.labels.shift();
-            config.data.datasets[0].data.shift();
-        }
+    document.querySelector("#p2_six_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixHoursAgo
+        chart.update()
+    });
 
-        // Add the new data point at the end of the arrays
-        config.data.labels.push(data.time);
-        config.data.datasets[0].data.push(data.value_v12);
+    document.querySelector("#p2_twelve_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = twelveHoursAgo
+        chart.update()
+    });
 
-        // Update the chart
-        lineChart.update();
-    };
-});
+    document.querySelector("#p2_one_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = twentyFourHoursAgo
+        chart.update()
+    });
 
-// Plot 3 Configurtion
-document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector("#p2_three_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = threeDaysAgo
+        chart.update()
+    });
+
+    document.querySelector("#p2_six_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixDaysAgo
+        chart.update()
+    });
+
+};
+
+function createChartV13(time, data_v13) {
     const config = {
         type: 'line',
         data: {
             labels: [],
             datasets: [{
-                label: "PV - Sunny Boy",
-                data: [],
-                backgroundColor: 'rgb(65, 145, 250)',
-                borderColor: 'rgb(65, 145, 250)',
-                fill: false,
-            }],
+                    label: "Battery - Sunny Island",
+                    data: data_v13,
+                    backgroundColor: "rgba(253, 183, 90,.6)",
+                    borderColor: "rgba(253, 183, 90,.6)",
+                    fill: false
+                }
+            ]
         },
         options: {
             maintainAspectRatio: false,
             tooltips: {
                 mode: 'index',
-                intersect: false,
+                intersect: false
             },
-            hover: {
-                mode: 'nearest',
-                intersect: true
+            interaction: {
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    align: 'center'
+                }
             },
             scales: {
                 y: {
@@ -170,119 +279,168 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 },
                 x: {
-                    stacked: true,
+                    type: 'time',
+                    ticks: {
+                        major: {
+                            enabled: true
+                        },
+                        font: (context) => {
+                            const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
+                            return {weight: boldedTicks}
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Waktu'
-                    }
+                    },
+                    min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset
                 }
             }
         }
     };
 
-    const context = document.getElementById('chart-3').getContext('2d');
+    const chart = new Chart(document.getElementById('chart-3').getContext('2d'), config);
 
-    const lineChart = new Chart(context, config);
 
-    const source = new EventSource("/data-streaming/vpp3");
+    for (const dateTimeString of time) {
+        config.data.labels.push(new Date(dateTimeString).getTime() - timeZoneOffset)
+    }
 
-    source.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+    // Update the chart
+    chart.update();
 
-        if (config.data.labels.length === 10) {
-            config.data.labels.shift();
-            config.data.datasets[0].data.shift();
-        }
+    document.querySelector("#p3_six_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixHoursAgo
+        chart.update()
+    });
 
-        // Add the new data point at the end of the arrays
-        config.data.labels.push(data.time);
-        config.data.datasets[0].data.push(data.value_v13);
+    document.querySelector("#p3_twelve_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = twelveHoursAgo
+        chart.update()
+    });
 
-        // Update the chart
-        lineChart.update();
-    };
-});
+    document.querySelector("#p3_one_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = twentyFourHoursAgo
+        chart.update()
+    });
 
-// Plot 4 Configurtion
-document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector("#p3_three_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = threeDaysAgo
+        chart.update()
+    });
+
+    document.querySelector("#p3_six_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixDaysAgo
+        chart.update()
+    });
+
+};
+
+function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
     const config = {
         type: 'line',
         data: {
             labels: [],
-            datasets: [{
-                label: "BILL - VPP 1",
-                data: [],
-                backgroundColor: "rgba(50, 69, 209,.6)",
-                borderColor: "rgba(63,82,227,1)",
-                fill: false,
-            },
+            datasets: [
                 {
-                    label: "BILL - VPP 2",
-                    data: [],
+                    label: "BILL - VPP 1",
+                    data: bill_vpp1,
+                    backgroundColor: "rgba(50, 69, 209,.6)",
+                    borderColor: "rgba(63,82,227,1)",
+                    fill: false
+                }, {
+                    label: "BILL - BPP 2",
+                    data: bill_vpp2,
                     backgroundColor: "rgba(253, 183, 90,.6)",
                     borderColor: "rgba(253, 183, 90,.6)",
-                    fill: false,
-                },
-            {
-                    label: "BILL - VPP 3",
-                    data: [],
-                    backgroundColor: "rgb(75, 192, 192)",
-                    borderColor: "rgb(75, 192, 192)",
-                    fill: false,
-                }],
+                    fill: false
+                }, {
+                    label: "BILL - BPP 3",
+                    data: bill_vpp3,
+                    backgroundColor: "rgba(153, 102, 255, 0.2)",
+                    borderColor: "rgba(153, 102, 255, 0.2)",
+                    fill: false
+                }
+            ]
         },
         options: {
             maintainAspectRatio: false,
             tooltips: {
                 mode: 'index',
-                intersect: false,
+                intersect: false
             },
-            hover: {
-                mode: 'nearest',
-                intersect: true
+            interaction: {
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    align: 'center'
+                }
             },
             scales: {
                 y: {
                     title: {
                         display: true,
-                        text: 'Billing'
+                        text: 'Savings'
                     }
                 },
                 x: {
-                    stacked: true,
+                    type: 'time',
+                    ticks: {
+                        major: {
+                            enabled: true
+                        },
+                        font: (context) => {
+                            const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
+                            return {weight: boldedTicks}
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Waktu'
-                    }
+                    },
+                    min: new Date(twentyFourHoursAgo).getTime() + timeZoneOffset
                 }
             }
         }
     };
 
-    const context = document.getElementById('chart-4').getContext('2d');
+    const chart = new Chart(document.getElementById('chart-4').getContext('2d'), config);
 
-    const lineChart = new Chart(context, config);
 
-    const source = new EventSource("/data-streaming/billing");
+    for (const dateTimeString of time) {
+        config.data.labels.push(new Date(dateTimeString).getTime() - timeZoneOffset)
+    }
 
-    source.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+    // Update the chart
+    chart.update();
 
-        if (config.data.labels.length === 10) {
-            config.data.labels.shift();
-            config.data.datasets[0].data.shift();
-            config.data.datasets[1].data.shift();
-            config.data.datasets[2].data.shift();
-        }
+    document.querySelector("#p4_six_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixHoursAgo
+        chart.update()
+    });
 
-        // Add the new data point at the end of the arrays
-        config.data.labels.push(data.time);
-        config.data.datasets[0].data.push(data.bill_vpp1);
-        config.data.datasets[1].data.push(data.bill_vpp2);
-        config.data.datasets[2].data.push(data.bill_vpp3);
+    document.querySelector("#p4_twelve_hours").addEventListener("click", function (e) {
+        config.options.scales.x.min = twelveHoursAgo
+        chart.update()
+    });
 
-        // Update the chart
-        lineChart.update();
+    document.querySelector("#p4_one_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = twentyFourHoursAgo
+        chart.update()
+    });
 
-    };
-});
+    document.querySelector("#p4_three_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = threeDaysAgo
+        chart.update()
+    });
+
+    document.querySelector("#p4_six_day").addEventListener("click", function (e) {
+        config.options.scales.x.min = sixDaysAgo
+        chart.update()
+    });
+
+};
+
+// Fetch data and create charts on page load
+fetchAndCreateCharts();

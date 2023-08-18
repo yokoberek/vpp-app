@@ -1,7 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %}{% block content %}
 
-    {#    <iframe src="/embed" width="100%" height="900" scrolling="no" class="py-6 px-6">Loading...</iframe>#}
+    <iframe src="/embed" width="100%" height="900" scrolling="no" class="py-6 px-6">Loading...</iframe>
 
     {% include 'main/snippets/plot1.html' %}
     {% include 'main/snippets/plot2.html' %}
@@ -14,4 +13,6 @@
     <script src="{{ url_for ('static', filename='node_modules/chart.js/dist/chart.umd.js') }}"></script>
 
     <script src="{{ url_for ('static', filename='js/ui-chartjs.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 {% endblock script %}
