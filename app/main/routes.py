@@ -1,8 +1,8 @@
 from app import session
-from flask import render_template, Blueprint, jsonify
+from flask import render_template, Blueprint, jsonify, request
 from flask_login import login_required
 from flask_restful import Resource, Api
-import json
+from datetime import datetime, timedelta
 
 main = Blueprint("main", __name__, template_folder="templates")
 api = Api(main)
@@ -17,10 +17,13 @@ def index():
 class EquipmentResource(Resource):
     @login_required
     def get(self):
+        interval_type = request.args.get('interval_type', default="HOUR", type=str)
+        interval_value = request.args.get('interval_value', default=6, type=int)
+
         # Plot 1, 2, 3
         obj_data_all = session.execute(
-            "SELECT date, v10, v11, v12, v13 FROM emsdata ORDER BY date DESC"
-        ).fetchmany(2000)
+            f"SELECT date, v10, v11, v12, v13 FROM emsdata WHERE date >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY date DESC"
+        ).fetchall()
 
         date = [item[0] for item in obj_data_all]
         data_v10 = [item[1] for item in obj_data_all]
@@ -52,10 +55,13 @@ class EquipmentResource(Resource):
 class BillResource(Resource):
     @login_required
     def get(self):
+        interval_type = request.args.get('interval_type', default="HOUR", type=str)
+        interval_value = request.args.get('interval_value', default=6, type=int)
+
         # Plot 4
         obj_data_all = session.execute(
-            "SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill ORDER BY daytime DESC"
-        ).fetchmany(2000)
+            f"SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY daytime DESC"
+        ).fetchall()
 
         date = [item[0] for item in obj_data_all]
         bill_vpp1 = [item[1] for item in obj_data_all]
@@ -79,7 +85,6 @@ class BillResource(Resource):
         }
 
         return jsonify(context)
-
 
 
 # Register the resource with the API

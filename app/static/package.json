@@ -3,8 +3,8 @@
 		"flowbite": "^1.8.1"
 	},
 	"dependencies": {
-		"apexcharts": "^3.41.1",
 		"chart.js": "^4.3.3",
-		"echarts": "^5.4.3"
+		"chartjs-adapter-date-fns": "^3.0.0",
+		"date-fns": "^2.30.0"
 	}
 }

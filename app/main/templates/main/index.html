@@ -1,18 +1,18 @@
-{% extends 'base.html' %}{% block content %}
+{% extends 'base.html' %}
+{% block content %}
 
     <iframe src="/embed" width="100%" height="900" scrolling="no" class="py-6 px-6">Loading...</iframe>
 
-    {% include 'main/snippets/plot1.html' %}
-    {% include 'main/snippets/plot2.html' %}
-    {% include 'main/snippets/plot3.html' %}
-    {% include 'main/snippets/plot4.html' %}
+    {% include 'main/snippets/vpp1.html' %}
+    {% include 'main/snippets/vpp2.html' %}
+    {% include 'main/snippets/vpp3.html' %}
+    {% include 'main/snippets/billing.html' %}
 
 {% endblock content %}
 
 {% block script %}
     <script src="{{ url_for ('static', filename='node_modules/chart.js/dist/chart.umd.js') }}"></script>
+    <script src="{{ url_for ('static', filename='node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js') }}"></script>
 
     <script src="{{ url_for ('static', filename='js/ui-chartjs.js') }}"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 {% endblock script %}
