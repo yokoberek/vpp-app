@@ -1,127 +1,111 @@
-const options = {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-};
-
-// Calculate date values
+// Menghitung nilai-nilai tanggal dan offset zona waktu
 const timeZoneOffset = 7 * 60 * 60 * 1000; // Offset untuk GMT+7 dalam milidetik
 const currentTime = new Date(); // Waktu saat ini
-const sixHoursAgo = new Date(currentTime - 6 * 60 * 60 * 1000); // Waktu 6 jam lalu
-const twelveHoursAgo = new Date(currentTime - 12 * 60 * 60 * 1000); // Waktu 12 jam lalu
-const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // Waktu 24 jam lalu
-const threeDaysAgo = new Date(currentTime - 3 * 24 * 60 * 60 * 1000); // Waktu 3 hari lalu
-const sixDaysAgo = new Date(currentTime - 6 * 24 * 60 * 60 * 1000); // Waktu 6 hari lalu
+const sixHoursAgo = new Date(currentTime - 6 * 60 * 60 * 1000); // Waktu 6 jam yang lalu
+const twelveHoursAgo = new Date(currentTime - 12 * 60 * 60 * 1000); // Waktu 12 jam yang lalu
+const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // Waktu 24 jam yang lalu
+const threeDaysAgo = new Date(currentTime - 3 * 24 * 60 * 60 * 1000); // Waktu 3 hari yang lalu
+const sixDaysAgo = new Date(currentTime - 6 * 24 * 60 * 60 * 1000); // Waktu 6 hari yang lalu
 
-// Global variable for chart
+
+// Variabel global untuk grafik
 let chart1;
 let chart2;
 let chart3;
 let chart4;
 
-// Fetch API data and create charts
-
-function fetchDataWithFilter(fields = [], type = null, interval_type = 'HOUR', interval_value = 6) {
+// Mengambil data alat dari API berdasarkan interval dan fields
+async function fetchEquipmentData(fields, interval_type, interval_value) {
     const headers = {
         headers: {
             'Content-Type': 'application/json'
         }
     };
 
-    if (type == 'equipment') {
+    const fetchUrl = `/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}`;
+
+    try {
+        const response = await fetch(fetchUrl, {
+            method: "GET",
+            cache: 'no-cache',
+            headers: headers
+        });
+        const data = await response.json();
+        const time = data.time;
+        const data_v10 = data.value_v10;
+        const data_v11 = data.value_v11;
+        const data_v12 = data.value_v12;
+        const data_v13 = data.value_v13;
+
         if (fields.includes('v10')) {
-            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}&fields=${fields[0]},${fields[1]}`, {
-                method: "GET",
-                cache: 'no-cache',
-                headers: headers
-            }).then(response => response.json()).then(data => {
-                const time = data.time;
-                const data_v10 = data.value_v10;
-                const data_v11 = data.value_v11;
-                createChartV10andV11(time, data_v10, data_v11);
-            });
+            createChartV10andV11(time, data_v10, data_v11);
         } else if (fields.includes('v12')) {
-            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}&fields=${fields[0]}`, {
-                method: "GET",
-                cache: 'no-cache',
-                headers: headers
-            }).then(response => response.json()).then(data => {
-                const time = data.time;
-                const data_v12 = data.value_v12;
-                createChartV12(time, data_v12)
-            });
+            createChartV12(time, data_v12);
         } else if (fields.includes('v13')) {
-            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}&fields=${fields[0]}`, {
-                method: "GET",
-                cache: 'no-cache',
-                headers: headers
-            }).then(response => response.json()).then(data => {
-                const time = data.time;
-                const data_v13 = data.value_v13;
-                createChartV13(time, data_v13)
-            });
+            createChartV13(time, data_v13);
         } else {
-            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}`, {
-                method: "GET",
-                cache: 'no-cache',
-                headers: headers
-            }).then(response => response.json()).then(data => {
-                const time = data.time;
-                const data_v10 = data.value_v10;
-                const data_v11 = data.value_v11;
-                const data_v12 = data.value_v12;
-                const data_v13 = data.value_v13;
-                createChartV10andV11(time, data_v10, data_v11);
-                createChartV12(time, data_v12)
-                createChartV13(time, data_v13)
-            });
+            createChartV10andV11(time, data_v10, data_v11);
+            createChartV12(time, data_v12);
+            createChartV13(time, data_v13);
         }
 
-    } else if (type == 'billing') {
-        fetch(`/api/billing/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}`, {
-            method: "GET",
-            cache: 'no-cache',
-            headers: headers
-        }).then(response => response.json()).then(data => {
-            const time = data.time;
-            const bill_vpp1 = data.bill_vpp1;
-            const bill_vpp2 = data.bill_vpp2;
-            const bill_vpp3 = data.bill_vpp3;
-
-            createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
-        });
-    } else {
-        fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}`, {
-            method: "GET",
-            cache: 'no-cache',
-            headers: headers
-        }).then(response => response.json()).then(data => {
-            const time = data.time;
-            const data_v10 = data.value_v10;
-            const data_v11 = data.value_v11;
-            const data_v12 = data.value_v12;
-            const data_v13 = data.value_v13;
-
-            createChartV10andV11(time, data_v10, data_v11);
-            createChartV12(time, data_v12)
-            createChartV13(time, data_v13)
-        });
-
-        fetch(`/api/billing/?interval_type=${interval_type}&interval_value=${interval_value}`, {
-            method: "GET",
-            cache: 'no-cache',
-            headers: headers
-        }).then(response => response.json()).then(data => {
-            const time = data.time;
-            const bill_vpp1 = data.bill_vpp1;
-            const bill_vpp2 = data.bill_vpp2;
-            const bill_vpp3 = data.bill_vpp3;
-
-            createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
-        });
+        return { time, data_v10, data_v11, data_v12, data_v13 };
+    } catch (error) {
+        console.error('Error fetching equipment data:', error);
+        return null;
     }
 }
 
+// Mengambil data tagihan dari API berdasarkan interval
+async function fetchBillingData(interval_type, interval_value) {
+    const headers = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const fetchUrl = `/api/billing/?interval_type=${interval_type}&interval_value=${interval_value}`;
+
+    try {
+        const response = await fetch(fetchUrl, {
+            method: "GET",
+            cache: 'no-cache',
+            headers: headers
+        });
+        const data = await response.json();
+        const time = data.time;
+        const bill_vpp1 = data.bill_vpp1;
+        const bill_vpp2 = data.bill_vpp2;
+        const bill_vpp3 = data.bill_vpp3;
+
+        createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
+
+        return { time, bill_vpp1, bill_vpp2, bill_vpp3 };
+    } catch (error) {
+        console.error('Error fetching billing data:', error);
+        return null;
+    }
+}
+
+// Mengambil data berdasarkan filter dan jenis
+async function fetchDataWithFilter(fields = [], type = null, interval_type = 'HOUR', interval_value = 6) {
+    if (type === 'equipment') {
+        return await fetchEquipmentData(fields, interval_type, interval_value);
+    } else if (type === 'billing') {
+        return await fetchBillingData(interval_type, interval_value);
+    } else {
+        const equipmentData = await fetchEquipmentData(fields, interval_type, interval_value);
+        const billingData = await fetchBillingData(interval_type, interval_value);
+
+        if (equipmentData && billingData) {
+            return { ...equipmentData, ...billingData };
+        } else {
+            return null;
+        }
+    }
+}
+
+// Membuat grafik untuk data alat v10 dan v11
 function createChartV10andV11(time, data_v10, data_v11) {
     const config = {
         type: 'line',
@@ -255,6 +239,7 @@ function createChartV10andV11(time, data_v10, data_v11) {
 
 };
 
+// Membuat grafik untuk data alat v12
 function createChartV12(time, data_v12) {
     const config = {
         type: 'line',
@@ -382,6 +367,7 @@ function createChartV12(time, data_v12) {
 
 };
 
+// Membuat grafik untuk data alat v13
 function createChartV13(time, data_v13) {
     const config = {
         type: 'line',
@@ -509,6 +495,7 @@ function createChartV13(time, data_v13) {
 
 };
 
+// Membuat grafik untuk data tagihan
 function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
     const config = {
         type: 'line',
@@ -647,6 +634,5 @@ function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
 
 };
 
-
-// Fetch data and create charts on page load
-fetchDataWithFilter();
+// Mengambil data awal dan menampilkan grafik
+fetchDataWithFilter()
