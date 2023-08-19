@@ -13,42 +13,113 @@ const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // Waktu
 const threeDaysAgo = new Date(currentTime - 3 * 24 * 60 * 60 * 1000); // Waktu 3 hari lalu
 const sixDaysAgo = new Date(currentTime - 6 * 24 * 60 * 60 * 1000); // Waktu 6 hari lalu
 
+// Global variable for chart
+let chart1;
+let chart2;
+let chart3;
+let chart4;
+
 // Fetch API data and create charts
-function fetchDataWithFilter(type = 'HOUR', value = 6) {
+
+function fetchDataWithFilter(fields = [], type = null, interval_type = 'HOUR', interval_value = 6) {
     const headers = {
         headers: {
             'Content-Type': 'application/json'
         }
     };
 
-    fetch(`/api/equipment/?interval_type=${type}&interval_value=${value}`, {
-        method: "GET",
-        cache: 'no-cache',
-        headers: headers
-    }).then(response => response.json()).then(data => {
-        const time = data.time;
-        const data_v10 = data.value_v10;
-        const data_v11 = data.value_v11;
-        const data_v12 = data.value_v12;
-        const data_v13 = data.value_v13;
+    if (type == 'equipment') {
+        if (fields.includes('v10')) {
+            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}&fields=${fields[0]},${fields[1]}`, {
+                method: "GET",
+                cache: 'no-cache',
+                headers: headers
+            }).then(response => response.json()).then(data => {
+                const time = data.time;
+                const data_v10 = data.value_v10;
+                const data_v11 = data.value_v11;
+                createChartV10andV11(time, data_v10, data_v11);
+            });
+        } else if (fields.includes('v12')) {
+            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}&fields=${fields[0]}`, {
+                method: "GET",
+                cache: 'no-cache',
+                headers: headers
+            }).then(response => response.json()).then(data => {
+                const time = data.time;
+                const data_v12 = data.value_v12;
+                createChartV12(time, data_v12)
+            });
+        } else if (fields.includes('v13')) {
+            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}&fields=${fields[0]}`, {
+                method: "GET",
+                cache: 'no-cache',
+                headers: headers
+            }).then(response => response.json()).then(data => {
+                const time = data.time;
+                const data_v13 = data.value_v13;
+                createChartV13(time, data_v13)
+            });
+        } else {
+            fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}`, {
+                method: "GET",
+                cache: 'no-cache',
+                headers: headers
+            }).then(response => response.json()).then(data => {
+                const time = data.time;
+                const data_v10 = data.value_v10;
+                const data_v11 = data.value_v11;
+                const data_v12 = data.value_v12;
+                const data_v13 = data.value_v13;
+                createChartV10andV11(time, data_v10, data_v11);
+                createChartV12(time, data_v12)
+                createChartV13(time, data_v13)
+            });
+        }
 
-        createChartV10andV11(time, data_v10, data_v11);
-        createChartV12(time, data_v12)
-        createChartV13(time, data_v13)
-    });
+    } else if (type == 'billing') {
+        fetch(`/api/billing/?interval_type=${interval_type}&interval_value=${interval_value}&type=${type}`, {
+            method: "GET",
+            cache: 'no-cache',
+            headers: headers
+        }).then(response => response.json()).then(data => {
+            const time = data.time;
+            const bill_vpp1 = data.bill_vpp1;
+            const bill_vpp2 = data.bill_vpp2;
+            const bill_vpp3 = data.bill_vpp3;
 
-    fetch(`/api/billing/?interval_type=${type}&interval_value=${value}`, {
-        method: "GET",
-        cache: 'no-cache',
-        headers: headers
-    }).then(response => response.json()).then(data => {
-        const time = data.time;
-        const bill_vpp1 = data.bill_vpp1;
-        const bill_vpp2 = data.bill_vpp2;
-        const bill_vpp3 = data.bill_vpp3;
+            createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
+        });
+    } else {
+        fetch(`/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}`, {
+            method: "GET",
+            cache: 'no-cache',
+            headers: headers
+        }).then(response => response.json()).then(data => {
+            const time = data.time;
+            const data_v10 = data.value_v10;
+            const data_v11 = data.value_v11;
+            const data_v12 = data.value_v12;
+            const data_v13 = data.value_v13;
 
-        createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
-    });
+            createChartV10andV11(time, data_v10, data_v11);
+            createChartV12(time, data_v12)
+            createChartV13(time, data_v13)
+        });
+
+        fetch(`/api/billing/?interval_type=${interval_type}&interval_value=${interval_value}`, {
+            method: "GET",
+            cache: 'no-cache',
+            headers: headers
+        }).then(response => response.json()).then(data => {
+            const time = data.time;
+            const bill_vpp1 = data.bill_vpp1;
+            const bill_vpp2 = data.bill_vpp2;
+            const bill_vpp3 = data.bill_vpp3;
+
+            createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3);
+        });
+    }
 }
 
 function createChartV10andV11(time, data_v10, data_v11) {
@@ -115,64 +186,71 @@ function createChartV10andV11(time, data_v10, data_v11) {
                         display: true,
                         text: 'Waktu'
                     },
-                    min: sixHoursAgo
                 }
             }
         }
     };
 
-    const chart = new Chart(document.getElementById('chart-1').getContext('2d'), config);
+    if (chart1) chart1.destroy();
+    chart1 = new Chart(document.getElementById('chart-1').getContext('2d'), config);
 
     for (const dateTimeString of time) {
         config.data.labels.push(new Date(dateTimeString).getTime() - timeZoneOffset)
     }
 
     // Update the chart
-    chart.update();
+    chart1.update();
+
+    const fields = ['v10', 'v11']
 
     document.querySelector("#p1_six_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixHoursAgo
-        chart.update()
+        chart1.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 6;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p1_twelve_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 12;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twelveHoursAgo
-        chart.update()
+        chart1.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 12;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p1_one_day").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 24;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twentyFourHoursAgo
-        chart.update()
+        chart1.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 24;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p1_three_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 3;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = threeDaysAgo
-        chart.update()
+        chart1.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'DAY';
+        const intervalValue = 1;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p1_six_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixDaysAgo
-        chart.update()
+        chart1.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'DAY';
+        const intervalValue = 6;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
 };
@@ -234,13 +312,13 @@ function createChartV12(time, data_v12) {
                         display: true,
                         text: 'Waktu'
                     },
-                    min: sixHoursAgo
                 }
             }
         }
     };
 
-    const chart = new Chart(document.getElementById('chart-2').getContext('2d'), config);
+    if (chart2) chart2.destroy();
+    chart2 = new Chart(document.getElementById('chart-2').getContext('2d'), config);
 
 
     for (const dateTimeString of time) {
@@ -248,51 +326,58 @@ function createChartV12(time, data_v12) {
     }
 
     // Update the chart
-    chart.update();
+    chart2.update();
+
+    const fields = ['v12']
 
     document.querySelector("#p2_six_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixHoursAgo
-        chart.update()
+        chart2.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 6;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p2_twelve_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 12;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twelveHoursAgo
-        chart.update()
+        chart2.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 12;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p2_one_day").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 24;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twentyFourHoursAgo
-        chart.update()
+        chart2.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 24;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p2_three_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 3;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = threeDaysAgo
-        chart.update()
+        chart2.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'DAY';
+        const intervalValue = 3;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p2_six_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixDaysAgo
-        chart.update()
+        chart2.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'DAY';
+        const intervalValue = 6;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
 };
@@ -354,13 +439,13 @@ function createChartV13(time, data_v13) {
                         display: true,
                         text: 'Waktu'
                     },
-                    min: sixHoursAgo
                 }
             }
         }
     };
 
-    const chart = new Chart(document.getElementById('chart-3').getContext('2d'), config);
+    if (chart3) chart3.destroy()
+    chart3 = new Chart(document.getElementById('chart-3').getContext('2d'), config);
 
 
     for (const dateTimeString of time) {
@@ -368,51 +453,58 @@ function createChartV13(time, data_v13) {
     }
 
     // Update the chart
-    chart.update();
+    chart3.update();
+
+    const fields = ['v13']
 
     document.querySelector("#p3_six_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixHoursAgo
-        chart.update()
+        chart3.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 6;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p3_twelve_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 12;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twelveHoursAgo
-        chart.update()
+        chart3.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 12;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p3_one_day").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 24;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twentyFourHoursAgo
-        chart.update()
+        chart3.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 24;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p3_three_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 3;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = threeDaysAgo
-        chart.update()
+        chart3.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'DAY';
+        const intervalValue = 3;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p3_six_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixDaysAgo
-        chart.update()
+        chart3.update()
+
+        const filterType = 'equipment';
+        const intervalType = 'HOUR';
+        const intervalValue = 6;
+        fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
 };
@@ -487,13 +579,13 @@ function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
                         display: true,
                         text: 'Waktu'
                     },
-                    min: sixHoursAgo
                 }
             }
         }
     };
 
-    const chart = new Chart(document.getElementById('chart-4').getContext('2d'), config);
+    if (chart4) chart4.destroy()
+    chart4 = new Chart(document.getElementById('chart-4').getContext('2d'), config);
 
 
     for (const dateTimeString of time) {
@@ -501,51 +593,56 @@ function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
     }
 
     // Update the chart
-    chart.update();
+    chart4.update();
 
     document.querySelector("#p4_six_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixHoursAgo
-        chart.update()
+        chart4.update()
+
+        const filterType = 'billing';
+        const intervalType = 'HOUR';
+        const intervalValue = 6;
+        fetchDataWithFilter(null, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p4_twelve_hours").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 12;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twelveHoursAgo
-        chart.update()
+        chart4.update()
+
+        const filterType = 'billing';
+        const intervalType = 'HOUR';
+        const intervalValue = 12;
+        fetchDataWithFilter(null, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p4_one_day").addEventListener("click", function (e) {
-        const filterType = 'HOUR';
-        const filterValue = 24;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = twentyFourHoursAgo
-        chart.update()
+        chart4.update()
+
+        const filterType = 'billing';
+        const intervalType = 'HOUR';
+        const intervalValue = 24;
+        fetchDataWithFilter(null, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p4_three_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 3;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = threeDaysAgo
-        chart.update()
+        chart4.update()
+
+        const filterType = 'billing';
+        const intervalType = 'DAY';
+        const intervalValue = 3;
+        fetchDataWithFilter(null, filterType, intervalType, intervalValue);
     });
 
     document.querySelector("#p4_six_day").addEventListener("click", function (e) {
-        const filterType = 'DAY';
-        const filterValue = 6;
-        fetchDataWithFilter(filterType, filterValue);
-
         config.options.scales.x.min = sixDaysAgo
-        chart.update()
+        chart4.update()
+
+        const filterType = 'billing';
+        const intervalType = 'DAY';
+        const intervalValue = 6;
+        fetchDataWithFilter(null, filterType, intervalType, intervalValue);
     });
 
 };
