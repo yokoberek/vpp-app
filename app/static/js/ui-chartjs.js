@@ -22,7 +22,8 @@ async function fetchEquipmentData(fields, interval_type, interval_value) {
         }
     };
 
-    const fetchUrl = `/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}`;
+    // const fetchUrl = `/api/equipment/?interval_type=${interval_type}&interval_value=${interval_value}`;
+    const fetchUrl = `/api/equipment/`;
 
     try {
         const response = await fetch(fetchUrl, {
@@ -145,7 +146,10 @@ function createChartV10andV11(time, data_v10, data_v11) {
             },
             plugins: {
                 legend: {
-                    align: 'center'
+                    align: 'end',
+                    labels: {
+                        usePointStyle: true
+                    }
                 }
             },
             scales: {
@@ -163,7 +167,7 @@ function createChartV10andV11(time, data_v10, data_v11) {
                         },
                         font: (context) => {
                             const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
-                            return {weight: boldedTicks}
+                            return { weight: boldedTicks }
                         }
                     },
                     title: {
@@ -223,7 +227,7 @@ function createChartV10andV11(time, data_v10, data_v11) {
 
         const filterType = 'equipment';
         const intervalType = 'DAY';
-        const intervalValue = 1;
+        const intervalValue = 3;
         fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
 
@@ -272,7 +276,10 @@ function createChartV12(time, data_v12) {
             },
             plugins: {
                 legend: {
-                    align: 'center'
+                    align: 'end',
+                    labels: {
+                        usePointStyle: true
+                    }
                 }
             },
             scales: {
@@ -290,7 +297,7 @@ function createChartV12(time, data_v12) {
                         },
                         font: (context) => {
                             const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
-                            return {weight: boldedTicks}
+                            return { weight: boldedTicks }
                         }
                     },
                     title: {
@@ -364,8 +371,8 @@ function createChartV12(time, data_v12) {
         const intervalValue = 6;
         fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
-
 };
+
 
 // Membuat grafik untuk data alat v13
 function createChartV13(time, data_v13) {
@@ -400,7 +407,10 @@ function createChartV13(time, data_v13) {
             },
             plugins: {
                 legend: {
-                    align: 'center'
+                    align: 'end',
+                    labels: {
+                        usePointStyle: true
+                    }
                 }
             },
             scales: {
@@ -418,7 +428,7 @@ function createChartV13(time, data_v13) {
                         },
                         font: (context) => {
                             const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
-                            return {weight: boldedTicks}
+                            return { weight: boldedTicks }
                         }
                     },
                     title: {
@@ -430,7 +440,7 @@ function createChartV13(time, data_v13) {
         }
     };
 
-    if (chart3) chart3.destroy()
+    if (chart3) chart3.destroy();
     chart3 = new Chart(document.getElementById('chart-3').getContext('2d'), config);
 
 
@@ -488,7 +498,7 @@ function createChartV13(time, data_v13) {
         chart3.update()
 
         const filterType = 'equipment';
-        const intervalType = 'HOUR';
+        const intervalType = 'DAY';
         const intervalValue = 6;
         fetchDataWithFilter(fields, filterType, intervalType, intervalValue);
     });
@@ -541,14 +551,17 @@ function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
             },
             plugins: {
                 legend: {
-                    align: 'center'
+                    align: 'end',
+                    labels: {
+                        usePointStyle: true,
+                    },
                 }
             },
             scales: {
                 y: {
                     title: {
                         display: true,
-                        text: 'Savings'
+                        text: '💲 Savings'
                     }
                 },
                 x: {
@@ -559,7 +572,7 @@ function createChartBill(time, bill_vpp1, bill_vpp2, bill_vpp3) {
                         },
                         font: (context) => {
                             const boldedTicks = context.tick && context.tick.major ? 'bold' : '';
-                            return {weight: boldedTicks}
+                            return { weight: boldedTicks }
                         }
                     },
                     title: {
