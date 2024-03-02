@@ -22,49 +22,6 @@ def process_data(data_list):
     return data_list[::-1]
 
 
-# class EquipmentResource(Resource):
-#     @login_required
-#     # @cache.cached(timeout=300, query_string=True)
-#     def get(self):
-#         try:
-#             # Proses serupa seperti di atas untuk semua nilai fields
-#             query = f"SELECT date, v10, v11, v12, v13 FROM emsdata_new WHERE date >= NOW() - INTERVAL 6 DAY ORDER BY date DESC"
-#             obj_data_all = session.execute(query).fetchall()
-#             print(f"Query executed: {query}")
-
-#             date = [item[0] for item in obj_data_all]
-#             data_v10 = [item[1] for item in obj_data_all]
-#             data_v11 = [item[2] for item in obj_data_all]
-#             data_v12 = [item[4] for item in obj_data_all]
-#             data_v13 = [item[3] for item in obj_data_all]
-
-#             processed_date = process_data(date)
-#             processed_v10 = process_data(data_v10)
-#             processed_v11 = process_data(data_v11)
-#             processed_v12 = process_data(data_v12)
-#             processed_v13 = process_data(data_v13)
-
-#             # Membuat konteks JSON untuk semua nilai v10, v11, v12, v13 yang telah diproses
-#             context = {
-#                 "time": processed_date,
-#                 "value_v10": processed_v10,
-#                 "value_v11": processed_v11,
-#                 "value_v12": processed_v12,
-#                 "value_v13": processed_v13,
-#             }
-
-#             # Mengembalikan hasil dalam bentuk JSON
-#             return jsonify(context)
-
-#         except Exception as e:
-#             # Handle exceptions yang mungkin terjadi selama query atau proses data
-#             session.rollback()
-#             raise e
-
-
-#         finally:
-#             # Pastikan sesi ditutup setelah request selesai
-#             session.close()
 class EquipmentResource(Resource):
     def get(self):
         with session as new_session:
@@ -139,88 +96,6 @@ class BillResource(Resource):
         finally:
             # Pastikan sesi ditutup setelah request selesai
             session.close()
-
-
-# class BillResource(Resource):
-#     @login_required
-#     # @cache.cached(timeout=300, query_string=True)
-#     def get(self):
-#         try:
-#             # # Membuat query SQL untuk mengambil data tagihan dari database
-#             # query = f"SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL 6 DAY ORDER BY daytime DESC"
-#             # obj_data_all = session.execute(query).fetchall()
-
-#             # # Memisahkan tanggal dan data tagihan untuk tiga nilai Vpp dari hasil query
-#             # date = [item[0] for item in obj_data_all]
-#             # bill_vpp1 = [item[1] for item in obj_data_all]
-#             # bill_vpp2 = [item[2] for item in obj_data_all]
-#             # bill_vpp3 = [item[3] for item in obj_data_all]
-
-#             # # Memproses data tanggal dan tagihan untuk tiga nilai Vpp
-#             # processed_date = process_data(date)
-#             # processed_bill_vpp1 = process_data(bill_vpp1)
-#             # processed_bill_vpp2 = process_data(bill_vpp2)
-#             # processed_bill_vpp3 = process_data(bill_vpp3)
-
-#             # # Membuat konteks JSON untuk tiga nilai tagihan Vpp yang telah diproses
-#             # context = {
-#             #     "bill_date_1": processed_date,
-#             #     "bill_vpp1": processed_bill_vpp1,
-#             #     "bill_vpp2": processed_bill_vpp2,
-#             #     "bill_vpp3": processed_bill_vpp3,
-#             # }
-
-#             # # Mengembalikan hasil dalam bentuk JSON
-#             # return jsonify(context)
-#             # Membuat query SQL untuk mengambil data tagihan dari database
-#             query = "SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL 6 DAY ORDER BY daytime DESC"
-#             obj_data_all = session.execute(query).fetchall()
-
-#             # Memisahkan tanggal dan data tagihan untuk tiga nilai Vpp dari hasil query
-#             date = [item[0] for item in obj_data_all]
-#             bill_vpp1 = [item[1] for item in obj_data_all]
-#             bill_vpp2 = [item[2] for item in obj_data_all]
-#             bill_vpp3 = [item[3] for item in obj_data_all]
-
-#             # Memproses data tanggal dan tagihan untuk tiga nilai Vpp
-#             processed_date = process_data(date)
-#             processed_bill_vpp1 = process_data(bill_vpp1)
-#             processed_bill_vpp2 = process_data(bill_vpp2)
-#             processed_bill_vpp3 = process_data(bill_vpp3)
-
-#             # Membuat konteks JSON untuk tiga nilai tagihan Vpp yang telah diproses
-#             context = {
-#                 "bill_date": processed_date,
-#                 "bill_vpp1": processed_bill_vpp1,
-#                 "bill_vpp2": processed_bill_vpp2,
-#                 "bill_vpp3": processed_bill_vpp3,
-#             }
-
-#             # Koleksi data dari table baweandata
-#             # bill_query = "SELECT * FROM billbawean WHERE time >= NOW() - INTERVAL 6 WEEK ORDER BY time DESC"
-#             # bill_data = session.execute(bill_query).fetchall()
-
-#             # # Menggunakan loop untuk memproses setiap kolom data
-#             # for i in range(15):
-#             #     column_data = [item[i] for item in bill_data]
-#             #     if i == 0:
-#             #         context["bill_date"] = process_data(column_data)
-#             #     else:
-#             #         context[f"bill_vpp{i}"] = process_data(
-#             #             column_data
-#             #         )  # Dimulai dari bill_vpp4
-
-#             # Mengembalikan hasil dalam bentuk JSON
-#             return jsonify(context)
-
-#         except Exception as e:
-#             # Handle exceptions yang mungkin terjadi selama query atau proses data
-#             session.rollback()
-#             raise e
-
-#         finally:
-#             # Pastikan sesi ditutup setelah request selesai
-#             session.close()
 
 
 # Register the resource with the API
