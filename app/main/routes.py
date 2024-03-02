@@ -1,4 +1,4 @@
-from app import session, cache
+from app import session
 from flask import render_template, Blueprint, jsonify
 from flask_login import login_required
 from flask_restful import Resource, Api

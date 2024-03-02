@@ -29,7 +29,6 @@ def create_app():
 
     assets.init_app(app)
     login_manager.init_app(app)
-    # cache.init_app(app)
 
     with app.app_context():
         css = Bundle("css/src/main.css", output="css/dist/main.css")

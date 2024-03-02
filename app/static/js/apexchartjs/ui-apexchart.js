@@ -1,3 +1,5 @@
+// NOT USED ApexChartJS, IN APPLICATIONS USING ChartJS
+
 // Menghitung nilai-nilai tanggal dan offset zona waktu
 // const timeZoneOffset = 7 * 60 * 60 * 1000; // Offset untuk GMT+7 dalam milidetik
 // const currentTime = new Date(); // Waktu saat ini
