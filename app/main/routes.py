@@ -1,5 +1,5 @@
 from app import session, cache
-from flask import render_template, Blueprint, jsonify, request
+from flask import render_template, Blueprint, jsonify
 from flask_login import login_required
 from flask_restful import Resource, Api
 
@@ -22,163 +22,210 @@ def process_data(data_list):
     return data_list[::-1]
 
 
+# class EquipmentResource(Resource):
+#     @login_required
+#     # @cache.cached(timeout=300, query_string=True)
+#     def get(self):
+#         try:
+#             # Proses serupa seperti di atas untuk semua nilai fields
+#             query = f"SELECT date, v10, v11, v12, v13 FROM emsdata_new WHERE date >= NOW() - INTERVAL 6 DAY ORDER BY date DESC"
+#             obj_data_all = session.execute(query).fetchall()
+#             print(f"Query executed: {query}")
+
+#             date = [item[0] for item in obj_data_all]
+#             data_v10 = [item[1] for item in obj_data_all]
+#             data_v11 = [item[2] for item in obj_data_all]
+#             data_v12 = [item[4] for item in obj_data_all]
+#             data_v13 = [item[3] for item in obj_data_all]
+
+#             processed_date = process_data(date)
+#             processed_v10 = process_data(data_v10)
+#             processed_v11 = process_data(data_v11)
+#             processed_v12 = process_data(data_v12)
+#             processed_v13 = process_data(data_v13)
+
+#             # Membuat konteks JSON untuk semua nilai v10, v11, v12, v13 yang telah diproses
+#             context = {
+#                 "time": processed_date,
+#                 "value_v10": processed_v10,
+#                 "value_v11": processed_v11,
+#                 "value_v12": processed_v12,
+#                 "value_v13": processed_v13,
+#             }
+
+#             # Mengembalikan hasil dalam bentuk JSON
+#             return jsonify(context)
+
+#         except Exception as e:
+#             # Handle exceptions yang mungkin terjadi selama query atau proses data
+#             session.rollback()
+#             raise e
+
+
+#         finally:
+#             # Pastikan sesi ditutup setelah request selesai
+#             session.close()
 class EquipmentResource(Resource):
-    @login_required
-    @cache.cached(timeout=1800, query_string=True)
     def get(self):
-        # Mengambil parameter dari query string
-        interval_type = request.args.get("interval_type", default="DAY", type=str)
-        interval_value = request.args.get("interval_value", default=6, type=int)
-        fields = request.args.get("fields", type=str)
+        with session as new_session:
+            try:
+                # Menggunakan session() untuk membuat instance session baru
+                query = f"SELECT date, v10, v11, v12, v13 FROM emsdata_new WHERE date >= NOW() - INTERVAL 6 DAY ORDER BY date DESC"
+                obj_data_all = new_session.execute(query).fetchall()
 
-        # Memproses permintaan berdasarkan nilai 'fields'
-        if "v10,v11" == fields:
-            # Membuat query SQL untuk mengambil data v10 dan v11 dari database
-            query = f"SELECT date, {fields} FROM emsdata_new WHERE date >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY date DESC"
-            obj_data_all = session.execute(query).fetchall()
+                date = [item[0] for item in obj_data_all]
+                data_v10 = [item[1] for item in obj_data_all]
+                data_v11 = [item[2] for item in obj_data_all]
+                data_v12 = [item[4] for item in obj_data_all]
+                data_v13 = [item[3] for item in obj_data_all]
 
-            # Memisahkan tanggal, v10, dan v11 dari hasil query
-            date = [item[0] for item in obj_data_all]
-            data_v10 = [item[1] for item in obj_data_all]
-            data_v11 = [item[2] for item in obj_data_all]
+                processed_date = process_data(date)
+                processed_v10 = process_data(data_v10)
+                processed_v11 = process_data(data_v11)
+                processed_v12 = process_data(data_v12)
+                processed_v13 = process_data(data_v13)
 
-            # Memproses data tanggal, v10, dan v11
-            processed_date = process_data(date)
-            processed_v10 = process_data(data_v10)
-            processed_v11 = process_data(data_v11)
+                context = {
+                    "time": processed_date,
+                    "value_v10": processed_v10,
+                    "value_v11": processed_v11,
+                    "value_v12": processed_v12,
+                    "value_v13": processed_v13,
+                }
 
-            # Membuat konteks JSON untuk v10 dan v11 yang telah diproses
-            context = {
-                "time": processed_date,
-                "value_v10": processed_v10,
-                "value_v11": processed_v11,
-            }
+                return jsonify(context)
 
-            # Mengembalikan hasil dalam bentuk JSON
-            return jsonify(context)
-
-        elif "v12" == fields:
-            # Proses serupa seperti di atas untuk v12
-            query = f"SELECT date, {fields} FROM emsdata_new WHERE date >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY date DESC"
-            obj_data_all = session.execute(query).fetchall()
-
-            date = [item[0] for item in obj_data_all]
-            data_v12 = [item[1] for item in obj_data_all]
-
-            processed_date = process_data(date)
-            processed_v12 = process_data(data_v12)
-
-            context = {
-                "time": processed_date,
-                "value_v12": processed_v12,
-            }
-
-            return jsonify(context)
-
-        elif "v13" == fields:
-            # Proses serupa seperti di atas untuk v13
-            query = f"SELECT date, {fields} FROM emsdata_new WHERE date >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY date DESC"
-            obj_data_all = session.execute(query).fetchall()
-
-            date = [item[0] for item in obj_data_all]
-            data_v13 = [item[1] for item in obj_data_all]
-
-            processed_date = process_data(date)
-            processed_v13 = process_data(data_v13)
-
-            context = {
-                "time": processed_date,
-                "value_v13": processed_v13,
-            }
-
-            return jsonify(context)
-
-        else:
-            # Proses serupa seperti di atas untuk semua nilai fields
-            query = f"SELECT date, v10, v11, v12, v13 FROM emsdata_new WHERE date >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY date DESC"
-            # query = f"SELECT max(date), max(v10), max(v11), max(v12), max(v13) FROM emsdata_new e group by SUBSTRING_INDEX(date, ':', 2) having date(max(date)) = date(now())"
-            obj_data_all = session.execute(query).fetchall()
-
-            date = [item[0] for item in obj_data_all]
-            data_v10 = [item[1] for item in obj_data_all]
-            data_v11 = [item[2] for item in obj_data_all]
-            data_v12 = [item[4] for item in obj_data_all]
-            data_v13 = [item[3] for item in obj_data_all]
-
-            processed_date = process_data(date)
-            processed_v10 = process_data(data_v10)
-            processed_v11 = process_data(data_v11)
-            processed_v12 = process_data(data_v12)
-            processed_v13 = process_data(data_v13)
-
-            # Membuat konteks JSON untuk semua nilai v10, v11, v12, v13 yang telah diproses
-            context = {
-                "time": processed_date,
-                "value_v10": processed_v10,
-                "value_v11": processed_v11,
-                "value_v12": processed_v12,
-                "value_v13": processed_v13,
-            }
-
-            # Mengembalikan hasil dalam bentuk JSON
-            return jsonify(context)
+            except Exception as e:
+                new_session.rollback()
+                raise e
 
 
 class BillResource(Resource):
     @login_required
-    @cache.cached(timeout=1800, query_string=True)
     def get(self):
-        # Mengambil parameter dari query string
-        interval_type = request.args.get("interval_type", default="HOUR", type=str)
-        interval_value = request.args.get("interval_value", default=6, type=int)
+        try:
+            # Membuat query SQL untuk mengambil data tagihan dari database
+            query = "SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL 6 DAY ORDER BY daytime DESC"
+            obj_data_all = session.execute(query).fetchall()
+            print(f"Query executed: {query}")
 
-        # Membuat query SQL untuk mengambil data tagihan dari database
-        query = f"SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL {interval_value} {interval_type} ORDER BY daytime DESC"
-        obj_data_all = session.execute(query).fetchall()
+            # Memisahkan tanggal dan data tagihan untuk tiga nilai Vpp dari hasil query
+            date = [item[0] for item in obj_data_all]
+            bill_vpp1 = [item[1] for item in obj_data_all]
+            bill_vpp2 = [item[2] for item in obj_data_all]
+            bill_vpp3 = [item[3] for item in obj_data_all]
 
-        # Memisahkan tanggal dan data tagihan untuk tiga nilai Vpp dari hasil query
-        date = [item[0] for item in obj_data_all]
-        bill_vpp1 = [item[1] for item in obj_data_all]
-        bill_vpp2 = [item[2] for item in obj_data_all]
-        bill_vpp3 = [item[3] for item in obj_data_all]
+            # Memproses data tanggal dan tagihan untuk tiga nilai Vpp
+            processed_date = process_data(date)
+            processed_bill_vpp1 = process_data(bill_vpp1)
+            processed_bill_vpp2 = process_data(bill_vpp2)
+            processed_bill_vpp3 = process_data(bill_vpp3)
 
-        # Memproses data tanggal dan tagihan untuk tiga nilai Vpp
-        processed_date = process_data(date)
-        processed_bill_vpp1 = process_data(bill_vpp1)
-        processed_bill_vpp2 = process_data(bill_vpp2)
-        processed_bill_vpp3 = process_data(bill_vpp3)
+            # Membuat konteks JSON untuk tiga nilai tagihan Vpp yang telah diproses
+            context = {
+                "bill_date": processed_date,
+                "bill_vpp1": processed_bill_vpp1,
+                "bill_vpp2": processed_bill_vpp2,
+                "bill_vpp3": processed_bill_vpp3,
+            }
 
-        # Membuat konteks JSON untuk tiga nilai tagihan Vpp yang telah diproses
-        context = {
-            "time": processed_date,
-            "bill_vpp1": processed_bill_vpp1,
-            "bill_vpp2": processed_bill_vpp2,
-            "bill_vpp3": processed_bill_vpp3,
-        }
+            return jsonify(context)
 
-        # Mengembalikan hasil dalam bentuk JSON
-        return jsonify(context)
+        except Exception as e:
+            # Handle exceptions yang mungkin terjadi selama query atau proses data
+            session.rollback()
+            raise e
+
+        finally:
+            # Pastikan sesi ditutup setelah request selesai
+            session.close()
 
 
-class SavingsResource(Resource):
-    @login_required
-    def get(self):
-        obj_data_all = session.execute("CALL getSavingsVPP()").fetchall()
+# class BillResource(Resource):
+#     @login_required
+#     # @cache.cached(timeout=300, query_string=True)
+#     def get(self):
+#         try:
+#             # # Membuat query SQL untuk mengambil data tagihan dari database
+#             # query = f"SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL 6 DAY ORDER BY daytime DESC"
+#             # obj_data_all = session.execute(query).fetchall()
 
-        for item in obj_data_all:
-            s1 = item[0]
-            s2 = item[1]
-            s3 = item[2]
+#             # # Memisahkan tanggal dan data tagihan untuk tiga nilai Vpp dari hasil query
+#             # date = [item[0] for item in obj_data_all]
+#             # bill_vpp1 = [item[1] for item in obj_data_all]
+#             # bill_vpp2 = [item[2] for item in obj_data_all]
+#             # bill_vpp3 = [item[3] for item in obj_data_all]
 
-        context = {"svvp1": s1, "svvp2": s2, "svvp3": s3}
+#             # # Memproses data tanggal dan tagihan untuk tiga nilai Vpp
+#             # processed_date = process_data(date)
+#             # processed_bill_vpp1 = process_data(bill_vpp1)
+#             # processed_bill_vpp2 = process_data(bill_vpp2)
+#             # processed_bill_vpp3 = process_data(bill_vpp3)
 
-        return jsonify(context)
+#             # # Membuat konteks JSON untuk tiga nilai tagihan Vpp yang telah diproses
+#             # context = {
+#             #     "bill_date_1": processed_date,
+#             #     "bill_vpp1": processed_bill_vpp1,
+#             #     "bill_vpp2": processed_bill_vpp2,
+#             #     "bill_vpp3": processed_bill_vpp3,
+#             # }
+
+#             # # Mengembalikan hasil dalam bentuk JSON
+#             # return jsonify(context)
+#             # Membuat query SQL untuk mengambil data tagihan dari database
+#             query = "SELECT daytime, ROUND(billVpp1,2), ROUND(billVpp2,2), ROUND(billVpp3,2) FROM electrbill WHERE daytime >= NOW() - INTERVAL 6 DAY ORDER BY daytime DESC"
+#             obj_data_all = session.execute(query).fetchall()
+
+#             # Memisahkan tanggal dan data tagihan untuk tiga nilai Vpp dari hasil query
+#             date = [item[0] for item in obj_data_all]
+#             bill_vpp1 = [item[1] for item in obj_data_all]
+#             bill_vpp2 = [item[2] for item in obj_data_all]
+#             bill_vpp3 = [item[3] for item in obj_data_all]
+
+#             # Memproses data tanggal dan tagihan untuk tiga nilai Vpp
+#             processed_date = process_data(date)
+#             processed_bill_vpp1 = process_data(bill_vpp1)
+#             processed_bill_vpp2 = process_data(bill_vpp2)
+#             processed_bill_vpp3 = process_data(bill_vpp3)
+
+#             # Membuat konteks JSON untuk tiga nilai tagihan Vpp yang telah diproses
+#             context = {
+#                 "bill_date": processed_date,
+#                 "bill_vpp1": processed_bill_vpp1,
+#                 "bill_vpp2": processed_bill_vpp2,
+#                 "bill_vpp3": processed_bill_vpp3,
+#             }
+
+#             # Koleksi data dari table baweandata
+#             # bill_query = "SELECT * FROM billbawean WHERE time >= NOW() - INTERVAL 6 WEEK ORDER BY time DESC"
+#             # bill_data = session.execute(bill_query).fetchall()
+
+#             # # Menggunakan loop untuk memproses setiap kolom data
+#             # for i in range(15):
+#             #     column_data = [item[i] for item in bill_data]
+#             #     if i == 0:
+#             #         context["bill_date"] = process_data(column_data)
+#             #     else:
+#             #         context[f"bill_vpp{i}"] = process_data(
+#             #             column_data
+#             #         )  # Dimulai dari bill_vpp4
+
+#             # Mengembalikan hasil dalam bentuk JSON
+#             return jsonify(context)
+
+#         except Exception as e:
+#             # Handle exceptions yang mungkin terjadi selama query atau proses data
+#             session.rollback()
+#             raise e
+
+#         finally:
+#             # Pastikan sesi ditutup setelah request selesai
+#             session.close()
 
 
 # Register the resource with the API
 api.add_resource(EquipmentResource, "/api/equipment/")
 api.add_resource(BillResource, "/api/billing/")
-api.add_resource(SavingsResource, "/api/savings/")
 
 
 @main.route("/embed")
@@ -186,9 +233,3 @@ api.add_resource(SavingsResource, "/api/savings/")
 def embed():
     # Template ini akan di-render dan dikirim sebagai respons ke klien (browser) dan digunakan didalam iframe.
     return render_template("main/embed.html")
-
-
-@main.route("/new")
-@login_required
-def new():
-    return render_template("main/new-bak.html")

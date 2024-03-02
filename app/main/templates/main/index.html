@@ -1,24 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
-    <!-- Menampilkan iframe dengan sumber "/embed" untuk visualisasi -->
-    <iframe src="/embed" width="100%" height="900" scrolling="no" class="py-6 px-6">Loading...</iframe>
+<!-- Menampilkan iframe dengan sumber "/embed" untuk visualisasi -->
+<!-- <iframe src="/embed" width="100%" height="900" scrolling="no" class="py-6 px-6">Loading...</iframe> -->
 
-    <!-- Memasukkan konten snippet untuk VPP1 -->
-    {% include 'main/snippets/vpp1.html' %}
-    <!-- Memasukkan konten snippet untuk VPP2 -->
-    {% include 'main/snippets/vpp2.html' %}
-    <!-- Memasukkan konten snippet untuk VPP3 -->
-    {% include 'main/snippets/vpp3.html' %}
-    <!-- Memasukkan konten snippet untuk data tagihan -->
-    {% include 'main/snippets/billing.html' %}
+<!-- Memasukkan konten snippet untuk VPP1 -->
+{% include 'main/snippets/vpp1.html' %}
+<!-- Memasukkan konten snippet untuk VPP2 -->
+{% include 'main/snippets/vpp2.html' %}
+<!-- Memasukkan konten snippet untuk VPP3 -->
+{% include 'main/snippets/vpp3.html' %}
+<!-- Memasukkan konten snippet untuk data tagihan -->
+{% include 'main/snippets/bill.html' %}
 
 {% endblock content %}
 
 {% block script %}
-    <!-- Memasukkan perpustakaan Chart.js dan adapter tanggal untuk Chart.js -->
-    <script src="{{ url_for ('static', filename='node_modules/chart.js/dist/chart.umd.js') }}"></script>
-    <script src="{{ url_for ('static', filename='node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js') }}"></script>
+<!-- Memasukkan perpustakaan Chart.js dan adapter tanggal untuk Chart.js -->
+<script src="{{ url_for ('static', filename='node_modules/chart.js/dist/chart.umd.js') }}"></script>
+<script
+    src="{{ url_for ('static', filename='node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js') }}"></script>
 
-    <!-- Memasukkan skrip kustom untuk interaksi dengan grafik Chart.js -->
-    <script src="{{ url_for ('static', filename='js/ui-chartjs.js') }}"></script>
+<!-- Memasukkan skrip kustom untuk interaksi dengan grafik Chart.js -->
+<script>
+    // Menghitung nilai-nilai tanggal dan offset zona waktu
+    const timeZoneOffset = 7 * 60 * 60 * 1000; // Offset untuk GMT+7 dalam milidetik
+    const currentTime = new Date(); // Waktu saat ini
+    const sixHoursAgo = new Date(currentTime - 6 * 60 * 60 * 1000); // Waktu 6 jam yang lalu
+    const twelveHoursAgo = new Date(currentTime - 12 * 60 * 60 * 1000); // Waktu 12 jam yang lalu
+    const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // Waktu 24 jam yang lalu
+    const threeDaysAgo = new Date(currentTime - 3 * 24 * 60 * 60 * 1000); // Waktu 3 hari yang lalu
+    const sixDaysAgo = new Date(currentTime - 6 * 24 * 60 * 60 * 1000); // Waktu 6 hari yang lalu
+</script>
+<script src="{{ url_for ('static', filename='js/chartjs/equipment-chart.js') }}"></script>
+<script src="{{ url_for ('static', filename='js/chartjs/bill-chart.js') }}"></script>
+
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> -->
+<!-- <script src="{{ url_for ('static', filename='js/apexchartjs/ui-apexchart.js') }}"></script> -->
 {% endblock script %}
