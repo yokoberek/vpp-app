@@ -16,7 +16,7 @@ WORKDIR /usr/src/
     
 EXPOSE 8000
 
-CMD [ "gunicorn", "-w" , "3", "-b", "0.0.0.0:8000", "run:app"]
+CMD [ "gunicorn", "-w" , "3", "-b", "0.0.0.0:5000", "run:app"]
 
 
 # For run this Image
